@@ -9,7 +9,6 @@ workflows:
             ios_signing:
                 distribution_type: app_store
                 bundle_identifier: com.blueraykanz.kenz-new
-                automatic_code_signing: true
             vars:
                 BUNDLE_ID: "com.blueraykanz.kenz-new"
                 XCODE_WORKSPACE: "kenz-new.xcworkspace"
