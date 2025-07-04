@@ -5,15 +5,16 @@ workflows:
         instance_type: mac_mini_m2
         integrations:
             app_store_connect: codemagic
-        environment:
-            ios_signing:
-                distribution_type: app_store
-                bundle_identifier: com.blueraykanz.kenz
-            vars:
-                BUNDLE_ID: "com.blueraykanz.kenz"
+            environment:
+      ios_signing:
+        distribution_type: app_store
+                bundle_identifier: com.blueraykanz.kenz-new
+        automatic_code_signing: true
+      vars:
+        BUNDLE_ID: "com.blueraykanz.kenz-new"
                 XCODE_WORKSPACE: "kenz-new.xcworkspace"
                 XCODE_SCHEME: "kenz-new"
-                APP_STORE_APPLE_ID: 1555555551 # Replace with your actual App Store ID
+                APP_STORE_APPLE_ID: YOUR_ACTUAL_APP_STORE_ID # Replace with your actual App Store ID from App Store Connect
             node: 18.18.0
         scripts:
             - name: Install npm dependencies
