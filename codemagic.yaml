@@ -1,17 +1,21 @@
 workflows:
-    react-native-ios:
-        name: React Native iOS
-        max_build_duration: 120
-        instance_type: mac_mini_m2
-        integrations:
-            app_store_connect: codemagic
-        environment:
-            vars:
-                BUNDLE_ID: "com.blueraykanz.kenz-new"
-                XCODE_WORKSPACE: "kenz-new.xcworkspace"
-                XCODE_SCHEME: "kenz-new"
-                APP_STORE_APPLE_ID: 1234567890  # Replace with your actual App Store ID
-            node: 18.18.0
+  react-native-ios:
+    name: React Native iOS
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: codemagic
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.blueraykanz.kenz-new
+        automatic_code_signing: true
+      vars:
+        BUNDLE_ID: "com.blueraykanz.kenz-new"
+        XCODE_WORKSPACE: "kenz-new.xcworkspace"
+        XCODE_SCHEME: "kenz-new"
+        APP_STORE_APPLE_ID: 1234567890
+      node: 18.18.0
         scripts:
             - name: Install npm dependencies
               script: |
@@ -44,7 +48,19 @@ workflows:
             - /tmp/xcodebuild_logs/*.log
             - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
             - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
-
+        publishing:
+            email:
+                recipients:
+                    - amr.200979@gmail.com
+                notify:
+                    success: true
+                    failure: false
+            app_store_connect:
+                auth: integration
+                submit_to_testflight: true
+                beta_groups:
+                    - Internal Testing
+                submit_to_app_store: false
     react-native-android:
         name: React Native Android
         max_build_duration: 120
@@ -82,4 +98,14 @@ workflows:
         artifacts:
             - android/app/build/outputs/**/*.aab
             - android/app/build/outputs/**/*.apk
-     
+        publishing:
+            email:
+                recipients:
+                    - amr.200979@gmail.com
+                notify:
+                    success: true
+                    failure: false
+            google_play:
+                credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+                track: internal
+                submit_as_draft: true
