@@ -1,0 +1,89 @@
+{
+    "expo": {
+        "name": "kenz-new",
+        "slug": "kenz-new",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "icon": "./assets/images/icon.png",
+        "scheme": "myapp",
+        "userInterfaceStyle": "automatic",
+        "newArchEnabled": true,
+        "ios": {
+            "supportsTablet": true
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "package": "com.blueraykanz",
+            "googleServicesFile": "./android/app/google-services.json",
+            "intentFilters": [
+                {
+                    "action": "VIEW",
+                    "autoVerify": true,
+                    "data": [
+                        {
+                            "scheme": "https",
+                            "host": "kenzback.rascoda.com",
+                            "pathPrefix": "/api"
+                        }
+                    ],
+                    "category": [
+                        "BROWSABLE",
+                        "DEFAULT"
+                    ]
+                }
+            ]
+        },
+        "web": {
+            "bundler": "metro",
+            "output": "static",
+            "favicon": "./assets/images/favicon.png"
+        },
+        "plugins": [
+            "expo-router",
+            [
+                "expo-splash-screen",
+                {
+                    "image": "./assets/images/Logo.jpg",
+                    "imageWidth": 200,
+                    "resizeMode": "contain",
+                    "backgroundColor": "#000"
+                }
+            ],
+            [
+                "expo-video",
+                {
+                    "supportsBackgroundPlayback": true,
+                    "supportsPictureInPicture": true
+                }
+            ],
+            [
+                "expo-image-picker",
+                {
+                    "photosPermission": "The app accesses your photos to let you share them with your friends."
+                }
+            ],
+            [
+                "expo-camera",
+                {
+                    "cameraPermission": "Kanz needs camera access to record poetry videos and creative content. For example, you can record original poems, stories, and literary performances to share with the community.",
+                    "microphonePermission": "Kanz needs microphone access to record audio for your poetry videos and creative content. This allows you to capture your voice while reciting poems, telling stories, or creating other literary content.",
+                    "recordAudioAndroid": true
+                }
+            ]
+        ],
+        "experiments": {
+            "typedRoutes": true
+        },
+        "extra": {
+            "router": {
+                "origin": false
+            },
+            "eas": {
+                "projectId": "bde8511d-8edc-41df-a3b0-76067dd405d6"
+            }
+        }
+    }
+}
