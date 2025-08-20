@@ -28,6 +28,7 @@ import Animated, {
     FadeInUp,
     SlideInRight,
 } from "react-native-reanimated";
+import { BlurView } from "expo-blur"; // Import BlurView
 
 const { width, height } = Dimensions.get("window");
 
@@ -243,82 +244,6 @@ export default function UploadScreen() {
                     <View style={styles.headerSpacer} />
                 </Animated.View>
 
-                {/* Story Info Card */}
-                <Animated.View
-                    entering={FadeInUp.delay(400)}
-                    style={styles.storyInfoCard}
-                >
-                    <LinearGradient
-                        colors={[
-                            "rgba(255,255,255,0.95)",
-                            "rgba(255,255,255,0.85)",
-                        ]}
-                        style={styles.storyInfoGradient}
-                    >
-                        <View style={styles.storyInfoHeader}>
-                            <View style={styles.storyIconContainer}>
-                                <Ionicons
-                                    name="videocam"
-                                    size={24}
-                                    color="#000"
-                                />
-                            </View>
-                            <Text style={styles.storyInfoTitle}>
-                                {t("stories.readyToPublish")}
-                            </Text>
-                        </View>
-
-                        <View style={styles.storyDetails}>
-                            <View style={styles.storyDetailItem}>
-                                <View style={styles.detailIconContainer}>
-                                    <Ionicons
-                                        name="time-outline"
-                                        size={18}
-                                        color="#666"
-                                    />
-                                </View>
-                                <Text style={styles.detailLabel}>
-                                    {t("stories.duration")}
-                                </Text>
-                                <Text style={styles.detailValue}>
-                                    {duration || 30}s
-                                </Text>
-                            </View>
-
-                            <View style={styles.storyDetailItem}>
-                                <View style={styles.detailIconContainer}>
-                                    <Ionicons
-                                        name="globe-outline"
-                                        size={18}
-                                        color="#666"
-                                    />
-                                </View>
-                                <Text style={styles.detailLabel}>
-                                    {t("stories.visibility")}
-                                </Text>
-                                <Text style={styles.detailValue}>
-                                    {t("stories.public")}
-                                </Text>
-                            </View>
-
-                            <View style={styles.storyDetailItem}>
-                                <View style={styles.detailIconContainer}>
-                                    <Ionicons
-                                        name="play-circle-outline"
-                                        size={18}
-                                        color="#666"
-                                    />
-                                </View>
-                                <Text style={styles.detailLabel}>
-                                    {t("stories.type")}
-                                </Text>
-                                <Text style={styles.detailValue}>
-                                    {t("stories.video")}
-                                </Text>
-                            </View>
-                        </View>
-                    </LinearGradient>
-                </Animated.View>
 
                 {/* Upload Button */}
                 <Animated.View
@@ -327,15 +252,13 @@ export default function UploadScreen() {
                 >
                     {uploading ? (
                         <View style={styles.storyProgressContainer}>
-                            <LinearGradient
-                                colors={["#000", "#333"]}
-                                style={styles.storyProgressCard}
+                            <View // Changed from LinearGradient
+                                style={styles.storyProgressCard} // Retain existing style
                             >
                                 <View style={styles.progressHeader}>
                                     <ActivityIndicator
                                         size="small"
-                                        color="#fff"
-                                    />
+                                        color="#fff" />
                                     <Text style={styles.progressTitle}>
                                         {t("stories.uploading")}
                                     </Text>
@@ -347,15 +270,15 @@ export default function UploadScreen() {
                                                 styles.progressBarFill,
                                                 {
                                                     width: `${Math.round(progress * 100)}%`,
+                                                    backgroundColor: "#0984E3" // Changed to accent blue
                                                 },
-                                            ]}
-                                        />
+                                            ]} />
                                     </View>
                                     <Text style={styles.progressPercentage}>
                                         {Math.round(progress * 100)}%
                                     </Text>
                                 </View>
-                            </LinearGradient>
+                            </View>
                         </View>
                     ) : (
                         <TouchableOpacity
@@ -363,19 +286,16 @@ export default function UploadScreen() {
                             onPress={handleShare}
                             disabled={loading}
                         >
-                            <LinearGradient
-                                colors={["#000", "#333"]}
-                                style={styles.publishButtonGradient}
+                            <View // Changed from LinearGradient
+                                style={styles.publishButtonGradient} // Retain existing style
                             >
                                 <Ionicons
-                                    name="cloud-upload-outline"
-                                    size={24}
-                                    color="#fff"
-                                />
+                                    name="cloud-upload-outline" size={24}
+                                    color="#fff" />
                                 <Text style={styles.publishButtonText}>
                                     {t("stories.publishStory")}
                                 </Text>
-                            </LinearGradient>
+                            </View>
                         </TouchableOpacity>
                     )}
                 </Animated.View>
@@ -620,8 +540,14 @@ const styles = StyleSheet.create({
         shadowRadius: 16,
         elevation: 8,
     },
-    storyInfoGradient: {
+    storyInfoGradient: { // This style is now for BlurView background
         padding: 24,
+    },
+    storyInfoBlurBackground: { // New style for BlurView
+        flex: 1, // Make it take full space of the card
+        borderRadius: 24, // Match parent borderRadius
+        overflow: "hidden", // Ensure content is clipped within blur
+        padding: 24, // Apply padding here instead of storyInfoGradient
     },
     storyInfoHeader: {
         flexDirection: "row",
@@ -632,7 +558,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 24,
-        backgroundColor: "#f0f0f0",
+        backgroundColor: "rgba(255,255,255,0.2)", // Slightly transparent white
         justifyContent: "center",
         alignItems: "center",
         marginRight: 16,
@@ -640,7 +566,7 @@ const styles = StyleSheet.create({
     storyInfoTitle: {
         fontSize: 20,
         fontFamily: "somar-bold",
-        color: "#000",
+        color: "#fff", // Changed to #fff
         flex: 1,
     },
     storyDetails: {
@@ -655,7 +581,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "rgba(255,255,255,0.2)", // Slightly transparent white
         justifyContent: "center",
         alignItems: "center",
         marginRight: 12,
@@ -663,17 +589,17 @@ const styles = StyleSheet.create({
     detailLabel: {
         fontSize: 16,
         fontFamily: "somar-medium",
-        color: "#666",
+        color: "#fff", // Changed to #fff
         flex: 1,
     },
     detailValue: {
         fontSize: 16,
         fontFamily: "somar-bold",
-        color: "#000",
+        color: "#fff", // Changed to #fff
     },
     storyButtonContainer: {
         position: "absolute",
-        bottom: 60,
+        bottom: Platform.OS === "ios" ? 60 + (Dimensions.get("window").height > 800 ? 20 : 0) : 60, // Adjust based on device height and bottom space
         left: 20,
         right: 20,
     },
@@ -685,6 +611,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 6,
+        backgroundColor: "#000", // Solid background for touchable
     },
     publishButtonGradient: {
         flexDirection: "row",
@@ -693,6 +620,7 @@ const styles = StyleSheet.create({
         paddingVertical: 18,
         paddingHorizontal: 24,
         gap: 12,
+        backgroundColor: "#000", // Ensure it's dark for minimal look
     },
     publishButtonText: {
         fontSize: 18,
@@ -708,9 +636,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 6,
+        backgroundColor: "#000", // Solid dark background
     },
     storyProgressCard: {
         padding: 20,
+        backgroundColor: "#000", // Ensure it's dark
     },
     progressHeader: {
         flexDirection: "row",

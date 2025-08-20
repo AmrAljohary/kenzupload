@@ -274,10 +274,12 @@ export default function OTPScreen() {
                 <StatusBar style="dark" backgroundColor="#fff" />
 
                 <ScrollView
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        backgroundColor: "#fff",
-                    }}
+                    contentContainerStyle={[
+                        styles.scrollViewContent,
+                        {
+                            paddingHorizontal: Platform.OS === "ios" ? 20 : 0, // إضافة padding هنا
+                        },
+                    ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <TouchableOpacity
@@ -385,11 +387,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
         direction: I18nManager.isRTL ? "ltr" : "rtl",
     },
     backButton: {
-        marginTop: 50,
+        marginTop: 10, // تم التعديل إلى قيمة ثابتة 10
     },
     logoContainer: {
         marginTop: height * 0.05,
@@ -416,9 +417,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 30,
         paddingHorizontal: 10,
+        width: "100%", // إضافة هذا السطر لضمان امتداد الحاوية
     },
     otpInput: {
-        width: 60,
+        width: (width / 4) - 30, // تعديل العرض ليتناسب مع 4 حقول بشكل جيد
         height: 55,
         borderWidth: 1,
         borderColor: "#ddd",
@@ -426,6 +428,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         backgroundColor: "#F9F9F9",
         fontFamily: "somar-bold",
+        zIndex: 1, // إضافة هذا السطر
     },
     filledInput: {
         borderColor: "#000",
@@ -462,5 +465,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 14,
         height: 55,
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        backgroundColor: "#fff",
     },
 });

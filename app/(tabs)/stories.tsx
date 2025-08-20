@@ -18,6 +18,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { api } from "@/services/axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
+import { getStatusBarHeight } from "react-native-iphone-x-helper"; // Import getStatusBarHeight
 
 // بيانات وهمية للمستخدمين
 const FRIENDS_STORIES = [
@@ -91,6 +92,7 @@ export default function StoriesScreen() {
     const [refreshing, setRefreshing] = useState(false);
     const [hasApiData, setHasApiData] = useState(false);
     const [currentUser, setCurrentUser] = useState(DEFAULT_USER);
+    const [currentUserHasStories, setCurrentUserHasStories] = useState(false); // New state to track if current user has stories
 
     React.useEffect(() => {
         const timer = setInterval(() => {
@@ -138,6 +140,10 @@ export default function StoriesScreen() {
                     ? response.data
                     : [];
 
+                // Check if current user has stories based on API response
+                const userStories = storiesData.find((story: any) => story.user.id === currentUser.id); // Moved inside
+                setCurrentUserHasStories(!!userStories); // Set true if userStories exists
+
                 // Group stories by user to avoid duplicates
                 const userStoriesMap = new Map();
 
@@ -148,7 +154,7 @@ export default function StoriesScreen() {
                             userStoriesMap.set(userId, {
                                 user: story.user,
                                 stories: [story],
-                                hasNewStory: true,
+                                hasNewStory: true, // Assuming new story if present
                                 lastStoryTime:
                                     story.created_at ||
                                     new Date().toISOString(),
@@ -164,17 +170,17 @@ export default function StoriesScreen() {
 
                 // Friends stories (regular users)
                 const apiFriendsStories = allUsers
-                    .filter((userStory) => userStory.user.type !== "admin")
+                    .filter((userStory) => userStory.user.type !== "admin" && userStory.user.id !== currentUser.id) // Exclude current user
                     .map((userStory) => ({
                         id: userStory.user.id,
                         name:
                             userStory.user.name ||
                             userStory.user.username ||
-                            "مستخدم",
+                            t("common.user"), // Translated default
                         image:
                             userStory.user.profile_image ||
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(userStory.user.name || userStory.user.username || "User")}&background=000&color=fff`,
-                        hasNewStory: true,
+                        hasNewStory: true, // Assuming new story if present
                         storiesCount: userStory.stories.length,
                         lastStoryTime: userStory.lastStoryTime,
                     }))
@@ -186,13 +192,13 @@ export default function StoriesScreen() {
 
                 // Others (admin users or featured)
                 const apiOthers = allUsers
-                    .filter((userStory) => userStory.user.type === "admin")
+                    .filter((userStory) => userStory.user.type === "admin" && userStory.user.id !== currentUser.id) // Exclude current user
                     .map((userStory) => ({
                         id: userStory.user.id,
                         name:
                             userStory.user.name ||
                             userStory.user.username ||
-                            "مستخدم",
+                            t("common.user"), // Translated default
                         image:
                             userStory.user.profile_image ||
                             `https://ui-avatars.com/api/?name=${encodeURIComponent(userStory.user.name || userStory.user.username || "User")}&background=000&color=fff`,
@@ -207,8 +213,7 @@ export default function StoriesScreen() {
                     }));
 
                 // Update state with API data or keep mock data if empty
-                const hasData =
-                    apiFriendsStories.length > 0 || apiOthers.length > 0;
+                const hasData = apiFriendsStories.length > 0 || apiOthers.length > 0 || currentUserHasStories;
                 setHasApiData(hasData);
 
                 if (hasData) {
@@ -250,16 +255,18 @@ export default function StoriesScreen() {
             <View style={styles.emptyStateIcon}>
                 <Ionicons name="camera-outline" size={80} color="#ccc" />
             </View>
-            <Text style={styles.emptyStateTitle}>لا توجد قصص</Text>
+            <Text style={styles.emptyStateTitle}>{t("stories.noStoriesTitle")}</Text>
             <Text style={styles.emptyStateDescription}>
-                لم يتم العثور على أي قصص حالياً.{"\n"}
-                اسحب لأسفل للتحديث أو ابدأ بإنشاء قصتك الأولى!
+                {t("stories.noStoriesDescription")}
             </Text>
             <View style={styles.emptyStateActions}>
                 <TouchableOpacity
                     style={styles.createStoryButton}
                     onPress={() => {
-                        console.log("Create first story pressed");
+                        router.push({
+                            pathname: "/(tabs)/add",
+                            params: { mode: "story" },
+                        });
                     }}
                 >
                     <Ionicons
@@ -267,7 +274,7 @@ export default function StoriesScreen() {
                         size={20}
                         color="#fff"
                     />
-                    <Text style={styles.createStoryButtonText}>إنشاء قصة</Text>
+                    <Text style={styles.createStoryButtonText}>{t("stories.createStoryButton")}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.retryButton}
@@ -280,7 +287,7 @@ export default function StoriesScreen() {
                         style={styles.retryIcon}
                     />
                     <Text style={[styles.retryButtonText, { color: "#000" }]}>
-                        تحديث
+                        {t("common.refresh")}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -292,28 +299,46 @@ export default function StoriesScreen() {
             <View style={styles.loadingSpinner}>
                 <Ionicons name="camera-outline" size={40} color="#000" />
             </View>
-            <Text style={styles.loadingText}>جاري تحميل القصص...</Text>
+            <Text style={styles.loadingText}>{t("stories.loadingStories")}</Text>
         </View>
     );
 
-    const renderStoryRing = () => (
-        <View style={styles.storyRing}>
-            <View style={styles.storyRingInner} />
-        </View>
-    );
+    const renderStoryRing = (hasStory: boolean, isMine: boolean = false) => {
+        if (!hasStory && !isMine) return null; // Only render ring if there's a story or it's my own add button
+
+        return (
+            <View style={hasStory ? styles.storyRingActive : styles.storyRingAdd}>
+                {hasStory ? (
+                    <View style={styles.storyRingInnerActive} />
+                ) : (
+                    <View style={styles.storyRingInnerAdd} />
+                )}
+            </View>
+        );
+    };
     console.log("currentUser", currentUser);
     return (
         <View style={styles.container}>
             <StatusBar barStyle="dark-content" />
 
             {/* رأس الصفحة */}
-            <View style={styles.header}>
+            <View style={[styles.header, {paddingTop: Platform.OS === 'ios' ? getStatusBarHeight() + 40 : 10}]}> {/* Adjusted paddingTop significantly more */}
+                <TouchableOpacity
+                    onPress={() => router.back()}
+                    style={styles.backButton}
+                >
+                    <Ionicons
+                        name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"}
+                        size={24}
+                        color="#000"
+                    />
+                </TouchableOpacity>
                 <Text style={styles.headerTitle}>{t("stories.title")}</Text>
             </View>
 
             {loading ? (
                 renderLoadingState()
-            ) : friendsStories.length === 0 && others.length === 0 ? (
+            ) : friendsStories.length === 0 && others.length === 0 && !currentUserHasStories ? ( // Updated condition
                 <ScrollView
                     style={styles.content}
                     showsVerticalScrollIndicator={false}
@@ -328,25 +353,30 @@ export default function StoriesScreen() {
                     }
                 >
                     {/* قسم حالتي - يظهر دائماً */}
-                    <View style={styles.myStatusSection}>
-                        <Animated.View entering={FadeInDown.delay(200)}>
-                            <TouchableOpacity
-                                style={styles.simpleMyStatusCard}
-                                onPress={() => {
+                    {/* Removed myStatusSection View */}
+                    <Animated.View entering={FadeInDown.delay(200)}>
+                        <TouchableOpacity
+                            style={styles.simpleMyStatusCard}
+                            onPress={() => {
+                                if (currentUserHasStories) {
+                                    router.push({pathname: "/(tabs)/story-viewer/[id]" as any, params: {id: currentUser.id}});
+                                } else {
                                     router.push({
                                         pathname: "/(tabs)/add",
                                         params: { mode: "story" },
                                     });
-                                }}
-                            >
-                                <View style={styles.simpleStatusLeft}>
-                                    <View style={styles.simpleImageContainer}>
-                                        <FastImage
-                                            source={{
-                                                uri: currentUser.image,
-                                            }}
-                                            style={styles.simpleStatusImage}
-                                        />
+                                }
+                            }}
+                        >
+                            <View style={styles.simpleStatusLeft}>
+                                <View style={styles.simpleImageContainer}>
+                                    <FastImage
+                                        source={{ uri: currentUser.image }}
+                                        style={styles.simpleStatusImage}
+                                    />
+                                    {currentUserHasStories ? (
+                                        renderStoryRing(true, true)
+                                    ) : (
                                         <View style={styles.simpleAddIcon}>
                                             <Ionicons
                                                 name="add"
@@ -354,61 +384,29 @@ export default function StoriesScreen() {
                                                 color="#fff"
                                             />
                                         </View>
-                                    </View>
-                                    <View style={styles.simpleStatusInfo}>
-                                        <Text style={styles.simpleStatusTitle}>
-                                            {currentUser.name}
-                                        </Text>
-                                        <Text
-                                            style={styles.simpleStatusSubtitle}
-                                        >
-                                            {t("stories.addStory")}
-                                        </Text>
-                                    </View>
+                                    )}
                                 </View>
-                                <View style={styles.simpleCameraIcon}>
-                                    <Ionicons
-                                        name="camera"
-                                        size={20}
-                                        color="#666"
-                                    />
+                                <View style={styles.simpleStatusInfo}>
+                                    <Text style={styles.simpleStatusTitle}>
+                                        {currentUser.name}
+                                    </Text>
+                                    <Text style={styles.simpleStatusSubtitle}>
+                                        {t(
+                                            currentUserHasStories ? "stories.myStoryExists" : "stories.addStory"
+                                        )}
+                                    </Text>
                                 </View>
-                            </TouchableOpacity>
-                        </Animated.View>
-                    </View>
-
-                    {/* Empty state للقصص الأخرى */}
-                    <Animated.View
-                        style={styles.emptyStoriesContainer}
-                        entering={FadeInDown.delay(400)}
-                    >
-                        <View style={styles.emptyStoriesIcon}>
-                            <Ionicons
-                                name="people-outline"
-                                size={60}
-                                color="#ccc"
-                            />
-                        </View>
-                        <Text style={styles.emptyStoriesTitle}>
-                            {t("stories.noFriendsStories")}
-                        </Text>
-                        <Text style={styles.emptyStoriesDescription}>
-                            {t("stories.noFriendsStoriesDescription")}
-                        </Text>
-                        <TouchableOpacity
-                            style={styles.refreshButton}
-                            onPress={() => fetchStories()}
-                        >
-                            <Ionicons
-                                name="refresh-outline"
-                                size={18}
-                                color="#000"
-                            />
-                            <Text style={styles.refreshButtonText}>
-                                {t("common.retry")}
-                            </Text>
+                            </View>
+                            <View style={styles.simpleCameraIcon}>
+                                <Ionicons
+                                    name="camera"
+                                    size={20}
+                                    color="#666"
+                                />
+                            </View>
                         </TouchableOpacity>
                     </Animated.View>
+                    {renderEmptyState()}
                 </ScrollView>
             ) : (
                 <ScrollView
@@ -425,14 +423,19 @@ export default function StoriesScreen() {
                     }
                 >
                     {/* قسم حالتي */}
+                    {/* Removed myStatusSection View */}
                     <Animated.View entering={FadeInDown.delay(200)}>
                         <TouchableOpacity
                             style={styles.simpleMyStatusCard}
                             onPress={() => {
-                                router.push({
-                                    pathname: "/(tabs)/add",
-                                    params: { mode: "story" },
-                                });
+                                if (currentUserHasStories) {
+                                    router.push({pathname: "/(tabs)/story-viewer/[id]" as any, params: {id: currentUser.id}});
+                                } else {
+                                    router.push({
+                                        pathname: "/(tabs)/add",
+                                        params: { mode: "story" },
+                                    });
+                                }
                             }}
                         >
                             <View style={styles.simpleStatusLeft}>
@@ -441,20 +444,26 @@ export default function StoriesScreen() {
                                         source={{ uri: currentUser.image }}
                                         style={styles.simpleStatusImage}
                                     />
-                                    <View style={styles.simpleAddIcon}>
-                                        <Ionicons
-                                            name="add"
-                                            size={16}
-                                            color="#fff"
-                                        />
-                                    </View>
+                                    {currentUserHasStories ? (
+                                        renderStoryRing(true, true)
+                                    ) : (
+                                        <View style={styles.simpleAddIcon}>
+                                            <Ionicons
+                                                name="add"
+                                                size={16}
+                                                color="#fff"
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                                 <View style={styles.simpleStatusInfo}>
                                     <Text style={styles.simpleStatusTitle}>
                                         {currentUser.name}
                                     </Text>
                                     <Text style={styles.simpleStatusSubtitle}>
-                                        {t("stories.addStory")}
+                                        {t(
+                                            currentUserHasStories ? "stories.myStoryExists" : "stories.addStory"
+                                        )}
                                     </Text>
                                 </View>
                             </View>
@@ -484,7 +493,7 @@ export default function StoriesScreen() {
                                         key={friend.id}
                                         style={styles.friendItem}
                                         onPress={() => {
-                                            // عرض حالة الصديق
+                                            router.push({pathname: "/(tabs)/story-viewer/[id]" as any, params: {id: friend.id}});
                                         }}
                                     >
                                         <Animated.View
@@ -493,7 +502,7 @@ export default function StoriesScreen() {
                                                 friend.id * 100
                                             )}
                                         >
-                                            {renderStoryRing()}
+                                            {renderStoryRing(friend.hasNewStory)}
                                             <FastImage
                                                 source={{ uri: friend.image }}
                                                 style={styles.friendImage}
@@ -545,17 +554,15 @@ export default function StoriesScreen() {
                                         style={styles.otherPersonContent}
                                     >
                                         <View style={styles.otherPersonLeft}>
-                                            <TouchableOpacity>
-                                                <BlurView
-                                                    intensity={80}
-                                                    style={styles.eyeButton}
-                                                >
-                                                    <Ionicons
-                                                        name="eye-outline"
-                                                        size={24}
-                                                        color="#666"
-                                                    />
-                                                </BlurView>
+                                            <TouchableOpacity
+                                                style={styles.eyeButton}
+                                                onPress={() => {router.push({pathname: "/(tabs)/story-viewer/[id]" as any, params: {id: person.id}})}} // Navigate to story viewer
+                                            >
+                                                <Ionicons
+                                                    name="eye-outline"
+                                                    size={24}
+                                                    color="#666"
+                                                />
                                             </TouchableOpacity>
                                             <TouchableOpacity
                                                 style={styles.followButton}
@@ -608,21 +615,39 @@ export default function StoriesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#FBFBFB",
+        backgroundColor: "#FBFBFB", // Light background
         direction: I18nManager.isRTL ? "ltr" : "rtl",
     },
     header: {
+        flexDirection: "row-reverse", // Align items to the right in RTL
+        alignItems: "center",
+        justifyContent: "space-between", // Space out title and back button
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: "#f0f0f0",
-        marginTop: 25,
+        // marginTop: 25, // Handled by paddingTop in component
+        backgroundColor: "#fff", // Ensure header background is white
+        shadowColor: "#000", // Subtle shadow for header
+        shadowOffset: { width: 0, height: 2 }, // Changed height to 2 for more depth
+        shadowOpacity: 0.1, // Increased shadow opacity
+        shadowRadius: 4, // Increased shadow radius
+        elevation: 2, // Increased elevation
+        zIndex: 10, // Ensure header is on top
     },
     headerTitle: {
+        flex: 1, // Take available space
         fontSize: 20,
         color: "#000",
         fontFamily: "somar-bold",
-        textAlign: "right",
+        textAlign: "center", // Center title
+    },
+    backButton: {
+        padding: 8,
+        position: "absolute", // Re-added absolute positioning
+        left: I18nManager.isRTL ? undefined : 10, // Adjusted for RTL
+        right: I18nManager.isRTL ? 10 : undefined, // Adjusted for RTL
+        zIndex: 1, // Ensure it's clickable
     },
     content: {
         flex: 1,
@@ -630,25 +655,23 @@ const styles = StyleSheet.create({
     contentContainer: {
         paddingBottom: 20,
     },
-    myStatusSection: {
-        padding: 16,
-    },
+    // Removed myStatusSection style as the View was removed
     myStatusCard: {
         flexDirection: "row-reverse",
         alignItems: "center",
         justifyContent: "space-between",
         backgroundColor: "#fff",
         borderRadius: 16,
-        padding: 12,
-        overflow: "hidden",
+        padding: 18,
+        marginHorizontal: 16, // Ensure horizontal margin is here
+        marginVertical: 12,
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08, // Subtle shadow for cards (reverted slightly)
+        shadowRadius: 6, // Slightly larger radius (reverted slightly)
+        elevation: 3, // Increased elevation (reverted slightly)
+        borderWidth: 1,
+        borderColor: "#f0f0f0",
     },
     myStatusRight: {
         flexDirection: "row-reverse",
@@ -729,25 +752,22 @@ const styles = StyleSheet.create({
     },
     friendsContainer: {
         paddingHorizontal: 12,
-        gap: 7,
+        gap: 12, // Increased gap for better spacing
         paddingBottom: 8,
         paddingTop: 10,
     },
     friendItem: {
         alignItems: "center",
-        width: 80,
+        width: 85, // Slightly wider for better spacing
     },
     friendImageContainer: {
         position: "relative",
         marginBottom: 8,
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
-        elevation: 5,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.18, // Slightly more opaque for friend images
+        shadowRadius: 10, // Larger radius
+        elevation: 6, // Increased elevation
     },
     storyRing: {
         position: "absolute",
@@ -787,17 +807,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         backgroundColor: "#fff",
-        borderRadius: 16,
-        padding: 12,
+        borderRadius: 14, // Slightly larger border radius for consistency
+        padding: 14, // Increased padding
         overflow: "hidden",
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
+        shadowOffset: { width: 0, height: 2 }, // Increased height
+        shadowOpacity: 0.1, // Increased opacity
+        shadowRadius: 4, // Increased radius
+        elevation: 3,
     },
     otherPersonLeft: {
         flexDirection: "row-reverse",
@@ -811,13 +828,24 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         overflow: "hidden",
+        backgroundColor: "#f0f0f0", // Light background
+        shadowColor: "#000", // Subtle shadow
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+        elevation: 1,
     },
     followButton: {
         backgroundColor: "#000",
-        paddingHorizontal: 20,
-        paddingVertical: 8,
-        borderRadius: 20,
+        paddingHorizontal: 22, // Slightly more padding
+        paddingVertical: 10, // Slightly more padding
+        borderRadius: 22, // Adjusted radius
         overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 }, // Increased height
+        shadowOpacity: 0.2, // Increased opacity
+        shadowRadius: 6, // Increased radius
+        elevation: 4,
     },
     followButtonText: {
         color: "#fff",
@@ -851,40 +879,14 @@ const styles = StyleSheet.create({
         marginTop: 2,
     },
     statusBar: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingHorizontal: 16,
-        paddingTop: Platform.OS === "ios" ? 48 : 16,
-        paddingBottom: 8,
-        backgroundColor: "#FBFBFB",
+        // This component style is generally not needed if StatusBar is handled globally or inline
     },
-    statusBarLeft: {
-        flex: 1,
-    },
-    timeText: {
-        fontSize: 16,
-        color: "#000",
-        fontFamily: "somar-regular",
-    },
-    statusBarRight: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 6,
-    },
-    batteryContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 2,
-    },
-    batteryText: {
-        fontSize: 14,
-        color: "#000",
-        fontFamily: "somar-regular",
-    },
-    signalContainer: {
-        transform: [{ rotate: "90deg" }],
-    },
+    statusBarLeft: {},
+    timeText: {},
+    statusBarRight: {},
+    batteryContainer: {},
+    batteryText: {},
+    signalContainer: {},
     storiesCountBadge: {
         position: "absolute",
         top: -5,
@@ -903,21 +905,23 @@ const styles = StyleSheet.create({
         fontSize: 10,
         fontFamily: "somar-bold",
     },
-    nameWithVerified: {
-        flexDirection: "row-reverse",
-        alignItems: "center",
-        gap: 4,
-    },
-    verifiedIcon: {
-        marginLeft: 2,
-    },
+    nameWithVerified: {},
+    verifiedIcon: {},
     emptyStateContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: 32,
-        paddingVertical: 60,
-        minHeight: 400,
+        paddingVertical: 45, // Increased padding
+        marginHorizontal: 16,
+        backgroundColor: "#fff",
+        borderRadius: 18, // Slightly larger radius
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 }, // Increased height
+        shadowOpacity: 0.1, // Increased opacity
+        shadowRadius: 6, // Increased radius
+        elevation: 3,
+        marginBottom: 20,
     },
     emptyStateIcon: {
         marginBottom: 24,
@@ -941,17 +945,22 @@ const styles = StyleSheet.create({
     retryButton: {
         flexDirection: "row-reverse",
         alignItems: "center",
-        backgroundColor: "#000",
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        borderRadius: 25,
+        backgroundColor: "#f0f0f0",
+        paddingHorizontal: 28, // Increased padding
+        paddingVertical: 14, // Increased padding
+        borderRadius: 28, // Adjusted radius
         gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 }, // Increased height
+        shadowOpacity: 0.1, // Increased opacity
+        shadowRadius: 4, // Increased radius
+        elevation: 2,
     },
     retryIcon: {
         marginLeft: 4,
     },
     retryButtonText: {
-        color: "#fff",
+        color: "#000",
         fontSize: 16,
         fontFamily: "somar-medium",
     },
@@ -978,24 +987,23 @@ const styles = StyleSheet.create({
         borderStyle: "dashed",
         backgroundColor: "rgba(0,0,0,0.02)",
     },
-    encourageText: {
-        color: "#000",
-        fontWeight: "600",
-        fontFamily: "somar-bold",
-    },
-    primaryActionButton: {
-        backgroundColor: "#000",
-    },
-    secondaryActionButton: {
-        backgroundColor: "#f0f0f0",
-        borderWidth: 1,
-        borderColor: "#ddd",
-    },
+    encourageText: {},
+    primaryActionButton: {},
+    secondaryActionButton: {},
     emptyStoriesContainer: {
         alignItems: "center",
         paddingVertical: 40,
         paddingHorizontal: 32,
         marginTop: 20,
+        marginBottom: 20,
+        backgroundColor: "#fff",
+        borderRadius: 18, // Slightly larger radius
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 }, // Increased height
+        shadowOpacity: 0.1, // Increased opacity
+        shadowRadius: 6, // Increased radius
+        elevation: 3,
+        marginHorizontal: 16,
     },
     emptyStoriesIcon: {
         marginBottom: 16,
@@ -1019,13 +1027,18 @@ const styles = StyleSheet.create({
     refreshButton: {
         flexDirection: "row-reverse",
         alignItems: "center",
-        backgroundColor: "#f8f8f8",
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+        backgroundColor: "#f0f0f0",
+        paddingHorizontal: 18, // Increased padding
+        paddingVertical: 10, // Increased padding
+        borderRadius: 22, // Adjusted radius
         gap: 6,
         borderWidth: 1,
         borderColor: "#eee",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 }, // Increased height
+        shadowOpacity: 0.1, // Increased opacity
+        shadowRadius: 4, // Increased radius
+        elevation: 2,
     },
     refreshButtonText: {
         color: "#000",
@@ -1041,10 +1054,15 @@ const styles = StyleSheet.create({
         flexDirection: "row-reverse",
         alignItems: "center",
         backgroundColor: "#000",
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 25,
+        paddingHorizontal: 24, // Slightly more padding
+        paddingVertical: 14, // Slightly more padding
+        borderRadius: 28, // Adjusted radius
         gap: 8,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 }, // Increased height
+        shadowOpacity: 0.15, // Increased opacity
+        shadowRadius: 10, // Increased radius
+        elevation: 4,
     },
     createStoryButtonText: {
         color: "#fff",
@@ -1058,16 +1076,13 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         backgroundColor: "#fff",
         borderRadius: 16,
-        padding: 18,
+        padding: 20, // Slightly more padding
         marginHorizontal: 16,
-        marginVertical: 12,
+        marginVertical: 14, // Slightly more vertical margin
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.15,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 }, // Increased height
+        shadowOpacity: 0.35, // More opaque shadow
+        shadowRadius: 5, // Slightly larger radius
         elevation: 4,
         borderWidth: 1,
         borderColor: "#f0f0f0",
@@ -1101,10 +1116,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "#fff",
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.3,
         shadowRadius: 4,
         elevation: 3,
@@ -1129,5 +1141,38 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 1,
         borderColor: "#e9ecef",
+    },
+    storyRingActive: { // New style for active story ring (black)
+        position: "absolute",
+        top: -5, // Adjusted for more prominent ring
+        left: -5,
+        right: -5,
+        bottom: -5,
+        borderRadius: 38, // Adjusted for new ring size
+        backgroundColor: "#000",
+        padding: 2,
+    },
+    storyRingAdd: { // New style for add story ring (dashed gray)
+        position: "absolute",
+        top: -5, // Adjusted for more prominent ring
+        left: -5,
+        right: -5,
+        bottom: -5,
+        borderRadius: 38, // Adjusted for new ring size
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        borderColor: "#ccc",
+        borderStyle: "dashed",
+        padding: 0,
+    },
+    storyRingInnerActive: {
+        flex: 1,
+        backgroundColor: "#FBFBFB",
+        borderRadius: 36, // Adjusted for new ring size
+    },
+    storyRingInnerAdd: {
+        flex: 1,
+        backgroundColor: "transparent",
+        borderRadius: 36, // Adjusted for new ring size
     },
 });

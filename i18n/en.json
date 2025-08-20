@@ -16,12 +16,15 @@
         "followers": "Followers",
         "seeAll": "See All",
         "close": "Close",
-        "success": "Success"
+        "success": "Success",
+        "user": "User",
+        "refresh": "Refresh"
     },
     "auth": {
         "login": "Login",
         "register": "Register",
         "loginId": "Username or Email",
+        "forgotPassword": "Forgot Password?",
         "forgotPasswordScreen": {
             "title": "Forgot Password",
             "description": "Enter your email and we'll send you a verification code",
@@ -89,13 +92,16 @@
         "otp": {
             "title": "Email Verification",
             "description": "Please enter the verification code sent to your email",
+            "countdown": "You can resend the code in",
             "resend": "Resend Code",
             "verify": "Verify Code",
             "invalidCode": "Invalid verification code",
             "invalidLength": "Please enter the complete verification code",
             "codeSent": "Code Sent",
             "checkEmail": "Please check your email",
-            "resendFailed": "Failed to resend code"
+            "resendFailed": "Failed to resend code",
+            "success": "OTP Verified Successfully",
+            "verified": "Your OTP has been successfully verified"
         },
         "verificationNeeded": "Verification Needed",
         "pleaseVerifyEmail": "Please verify your email address",
@@ -107,11 +113,26 @@
         "pleaseWait": "Please wait",
         "emailRequired": "Email is required",
         "passwordRequired": "Password is required",
+        "creatingAccount": "Creating account",
+        "registrationSuccessful": "Registration successful",
+        "welcomeToApp": "Welcome to the app",
+        "passwordTooShort": "Password must be at least 8 characters",
+        "usernameRequired": "Username is required",
+        "usernameTooShort": "Username must be at least 3 characters",
+        "fullNameRequired": "Full name is required",
+        "phoneRequired": "Phone number is required",
+        "invalidPhone": "Invalid phone number",
+        "confirmPasswordRequired": "Confirm password is required",
+        "passwordsDontMatch": "Passwords do not match",
+        "termsRequired": "Terms and conditions must be accepted",
+        "usernameExists": "Username already exists, please choose another one",
         "errors": {
             "invalidCredentials": "Invalid email or password",
             "usernameTaken": "Username is already taken",
             "invalidEmail": "Invalid email format",
-            "passwordMismatch": "Passwords do not match"
+            "passwordMismatch": "Passwords do not match",
+            "emailRequired": "Email is required",
+            "passwordRequired": "Password is required"
         },
         "loggingOut": "Logging out...",
         "logoutError": "Error logging out"
@@ -178,7 +199,8 @@
         "emptyProfileDescription": "This user hasn't posted any content yet",
         "noFollowingTitle": "No Following Yet",
         "noFollowing": "No following yet",
-        "noFollowers": "No followers yet"
+        "noFollowers": "No followers yet",
+        "addPhoto": "Add Profile Photo"
     },
     "content": {
         "like": "Like",
@@ -310,6 +332,12 @@
         "search": "Search",
         "cancel": "Cancel"
     },
+    "categories": {
+        "quran": "Quran",
+        "poetry": "Poetry",
+        "saudi": "Saudi Arabia",
+        "more": "More"
+    },
     "notifications": {
         "title": "Notifications",
         "noNotifications": "No new notifications",
@@ -324,6 +352,14 @@
         "mentioned": "mentioned you in a comment",
         "shared": "shared your post",
         "newFollower": "New Follower"
+    },
+    "home": {
+        "noVideosTitle": "No Videos Available Yet",
+        "noVideosDescription": "Start by posting your first video to share with the community!",
+        "createFirstVideo": "Create Your First Video"
+    },
+    "profile": {
+        "addPhoto": "Add Profile Photo"
     },
     "messages": {
         "title": "Messages",
@@ -353,6 +389,15 @@
         "mediaOptions": "Media Options"
     },
     "addContent": {
+        "simulatorRecordingNotSupportedTitle": "Recording Not Supported",
+        "simulatorRecordingNotSupportedDescription": "iOS simulator does not support video recording. Please use the Gallery button to upload an existing video.",
+        "simulatorMode": "Simulator Mode",
+        "simulatorModeDescription": "Simulator does not support video recording. A placeholder video will be used for previews.",
+        "permissionDeniedTitle": "Permission Denied",
+        "cameraPermissionPermanentlyDenied": "Camera and microphone permission is permanently denied. Please go to app settings to enable them.",
+        "microphonePermissionPermanentlyDenied": "Microphone permission is permanently denied. Please go to app settings to enable it.",
+        "openSettings": "Open Settings",
+        "cameraMicrophonePermissionRequired": "This app requires camera and microphone permissions to record video.",
         "cameraPermission": "We need camera and microphone permission to record video",
         "grantPermission": "Grant Permission",
         "addMusic": "Add Music",
@@ -383,11 +428,36 @@
         "openGallery": "Open Gallery",
         "selectDuration": "Select Duration",
         "recordingTime": "Recording Time",
-        "maxDuration": "Max Duration"
+        "maxDuration": "Max Duration",
+        "titlePlaceholder": "Enter video title...",
+        "descriptionPlaceholder": "Add video description...",
+        "share": "Share",
+        "uploadTitle": "Add New Post",
+        "uploadErrorTitle": "Upload Error",
+        "uploadErrorMsg": "Please select a video and enter a title.",
+        "uploadSuccessTitle": "Uploaded",
+        "uploadSuccessMsg": "Video uploaded successfully!"
     },
     "stories": {
         "title": "Stories",
         "addStory": "Add Story",
+        "myStoryExists": "My Story",
+        "noStoriesTitle": "No Stories",
+        "noStoriesDescription": "No stories found currently. \n Pull down to refresh or start by creating your first story!",
+        "createStoryButton": "Create Story",
+        "loadingStories": "Loading Stories...",
+        "noStoriesFound": "No stories found for this user.",
+        "uploadTitle": "Publish Story",
+        "readyToPublish": "Ready to Publish?",
+        "duration": "Duration",
+        "visibility": "Visibility",
+        "public": "Public",
+        "type": "Type",
+        "video": "Video",
+        "uploading": "Uploading",
+        "publishStory": "Publish Story",
+        "uploadSuccessTitle": "Uploaded",
+        "uploadSuccessMsg": "Story uploaded successfully!",
         "friends": "Friends",
         "others": "Discover",
         "followers": "followers",

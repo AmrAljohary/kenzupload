@@ -175,11 +175,13 @@ export default function ResetPasswordScreen() {
                 <StatusBar style="dark" backgroundColor="#fff" />
 
                 <ScrollView
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        paddingBottom: extraPadding ? 120 : 0,
-                        backgroundColor: "#fff",
-                    }}
+                    contentContainerStyle={[
+                        styles.scrollViewContent,
+                        {
+                            paddingBottom: extraPadding ? 120 : 0,
+                            paddingHorizontal: Platform.OS === "ios" ? 20 : 0, // إضافة padding هنا
+                        },
+                    ]}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
@@ -398,11 +400,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
+        paddingHorizontal: Platform.OS === "ios" ? 20 : 0,
         direction: I18nManager.isRTL ? "ltr" : "rtl",
     },
     backButton: {
-        marginTop: 50,
+        marginTop: 10, // تم التعديل إلى قيمة ثابتة 10
     },
     logoContainer: {
         marginTop: height * 0.05,
@@ -443,12 +445,14 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         height: 50,
         position: "relative",
+        width: "100%", // إضافة هذا السطر
     },
     input: {
         flex: 1,
         fontSize: 14,
         height: "100%",
         fontFamily: "somar-regular",
+        zIndex: 1, // إضافة هذا السطر
     },
     lockIconContainer: {
         position: "absolute",
@@ -473,12 +477,15 @@ const styles = StyleSheet.create({
     bottomSection: {
         marginTop: "auto",
         marginBottom: Platform.OS === "ios" ? 20 : 30,
-        width: "100%",
     },
     submitButton: {
         backgroundColor: "#000",
         borderRadius: 8,
         paddingVertical: 14,
         height: 55,
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        backgroundColor: "#fff",
     },
 });

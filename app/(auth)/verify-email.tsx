@@ -221,10 +221,12 @@ export default function VerifyEmailScreen() {
                 <StatusBar style="dark" backgroundColor="#fff" />
 
                 <ScrollView
-                    contentContainerStyle={{
-                        flexGrow: 1,
-                        backgroundColor: "#fff",
-                    }}
+                    contentContainerStyle={[
+                        styles.scrollViewContent,
+                        {
+                            paddingHorizontal: Platform.OS === "ios" ? 20 : 0, // إضافة padding هنا
+                        },
+                    ]}
                     showsVerticalScrollIndicator={false}
                 >
                     <View
@@ -318,7 +320,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
         direction: I18nManager.isRTL ? "ltr" : "rtl",
     },
     logoContainer: {
@@ -346,9 +347,10 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         marginBottom: 30,
         paddingHorizontal: 10,
+        width: "100%", // إضافة هذا السطر لضمان امتداد الحاوية
     },
     otpInput: {
-        width: 45,
+        width: (width / 6) - 15, // تعديل العرض ليتناسب مع 6 حقول بشكل جيد
         height: 55,
         borderWidth: 1,
         borderColor: "#ddd",
@@ -356,6 +358,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         backgroundColor: "#F9F9F9",
         fontFamily: "somar-bold",
+        zIndex: 1, // إضافة هذا السطر
     },
     filledInput: {
         borderColor: "#000",
@@ -392,5 +395,9 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingVertical: 14,
         height: 55,
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        backgroundColor: "#fff",
     },
 });

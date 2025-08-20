@@ -17,6 +17,9 @@ import { useDarkmode } from "../hooks/useDarkmode";
 import { NotificationProvider } from "../components/providers/NotificationProvider";
 import { useAuthStore } from "@/store/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { Stack } from "expo-router";
+import { useAppLanguage } from "../hooks/useLanguage";
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
@@ -131,7 +134,7 @@ function InitialLayout() {
                     console.log(
                         "User authenticated and verified, navigating to home"
                     );
-                    router.replace("/(tabs)/messages");
+                    router.replace("/(tabs)/home");
                     return;
                 }
             };
@@ -217,12 +220,23 @@ export default function RootLayout() {
                 forcedTheme={getTheme()}
             >
                 <NotificationProvider>
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                        <StatusBar
-                            style={ "dark"}
-                        />
-                        <InitialLayout />
-                    </GestureHandlerRootView>
+                    <BottomSheetModalProvider>
+                        <GestureHandlerRootView style={{ flex: 1 }}>
+                            <Stack
+                                screenOptions={{
+                                    headerShown: false, // Hide the default header for all screens in the stack
+                                }}
+                            >
+                                {/* <Stack.Screen name="index" /> */}
+                                <Stack.Screen name="main-login" />
+                                <Stack.Screen name="language-selection" />
+                                <Stack.Screen name="intro" />
+                                <Stack.Screen name="(auth)" />
+                                <Stack.Screen name="(tabs)" />
+                                <Stack.Screen name="story-viewer" /> {/* Add the new story-viewer stack */}
+                            </Stack>
+                        </GestureHandlerRootView>
+                    </BottomSheetModalProvider>
                 </NotificationProvider>
             </ThemeProvider>
         </I18nextProvider>

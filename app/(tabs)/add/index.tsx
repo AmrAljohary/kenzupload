@@ -9,6 +9,7 @@ import {
     Image,
     I18nManager,
     Alert,
+    Linking, // Import Linking
 } from "react-native";
 import { Text } from "@/components/ui/Text";
 import {
@@ -33,12 +34,15 @@ import Animated, {
 import { useTranslation } from "react-i18next";
 import { Video } from "expo-av";
 import { useLocalSearchParams } from "expo-router";
+import * as DocumentPicker from 'expo-document-picker'; // Import DocumentPicker
 
 const SCREEN_HEIGHT = Dimensions.get("window").height;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const DURATIONS = [{ value: 15 }, { value: 60 }, { value: 180 }];
 const STORY_DURATIONS = [{ value: 15 }, { value: 30 }];
+
+// Removed placeholder video URIs as per new requirements
 
 export default function AddScreen() {
     const { t, i18n } = useTranslation();
@@ -73,6 +77,48 @@ export default function AddScreen() {
     const hasPermissions =
         cameraPermission?.granted && microphonePermission?.granted;
 
+    // Function to request permissions
+    const requestAllPermissions = async () => {
+        const { status: cameraStatus, canAskAgain: cameraCanAskAgain } = await requestCameraPermission();
+        const { status: microphoneStatus, canAskAgain: microphoneCanAskAgain } = await requestMicrophonePermission();
+
+        if (cameraStatus === "denied" && !cameraCanAskAgain) {
+            Alert.alert(
+                t("addContent.permissionDeniedTitle"),
+                t("addContent.cameraPermissionPermanentlyDenied"),
+                [
+                    {
+                        text: t("common.cancel"),
+                        style: "cancel",
+                    },
+                    {
+                        text: t("addContent.openSettings"),
+                        onPress: () => Linking.openSettings(),
+                    },
+                ]
+            );
+        } else if (microphoneStatus === "denied" && !microphoneCanAskAgain) {
+            Alert.alert(
+                t("addContent.permissionDeniedTitle"),
+                t("addContent.microphonePermissionPermanentlyDenied"),
+                [
+                    {
+                        text: t("common.cancel"),
+                        style: "cancel",
+                    },
+                    {
+                        text: t("addContent.openSettings"),
+                        onPress: () => Linking.openSettings(),
+                    },
+                ]
+            );
+        } else if (!hasPermissions) {
+            // If not permanently denied, try to ask again (this handles initial denials)
+            await requestCameraPermission();
+            await requestMicrophonePermission();
+        }
+    };
+
     useEffect(() => {
         requestAllPermissions();
         return () => {
@@ -81,11 +127,6 @@ export default function AddScreen() {
             }
         };
     }, []);
-
-    const requestAllPermissions = async () => {
-        await requestCameraPermission();
-        await requestMicrophonePermission();
-    };
 
     const handleSelectTab = (tab: string) => {
         setSelectedTab(tab);
@@ -130,6 +171,16 @@ export default function AddScreen() {
 
     const handleStartRecording = async () => {
         if (!cameraRef.current) return;
+
+        // If on iOS simulator, show alert instead of recording
+        if (Platform.OS === 'ios' && __DEV__) {
+            Alert.alert(
+                t("addContent.simulatorRecordingNotSupportedTitle"),
+                t("addContent.simulatorRecordingNotSupportedDescription"),
+                [{ text: t("common.ok") }]
+            );
+            return; // Exit function
+        }
 
         if (!microphonePermission?.granted) {
             Alert.alert(t("common.error"), t("addContent.recordError"), [
@@ -191,7 +242,10 @@ export default function AddScreen() {
         }
 
         setIsRecording(false);
-        await cameraRef.current.stopRecording();
+        // Only stop recording if not in simulator mode and camera is available
+        if (!(Platform.OS === 'ios' && __DEV__) && cameraRef.current) {
+            await cameraRef.current.stopRecording();
+        }
     };
 
     const handleNext = () => {
@@ -218,13 +272,35 @@ export default function AddScreen() {
     };
 
     const handleOpenGallery = async () => {
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-            quality: 1,
-        });
+        let videoUri = null;
 
-        if (!result.canceled) {
-            setRecordedVideo({ uri: result.assets[0].uri });
+        if (Platform.OS === 'ios' && __DEV__) {
+            // On iOS simulator, open document picker for video files
+            const docPickerResult = await DocumentPicker.getDocumentAsync({ type: 'video/*' });
+
+            // Handle DocumentPicker result based on 'canceled' property
+            if (!docPickerResult.canceled && docPickerResult.assets && docPickerResult.assets.length > 0) {
+                videoUri = docPickerResult.assets[0].uri;
+            } else if (docPickerResult.canceled) {
+                console.log("Document picking cancelled (Simulator).");
+                return;
+            }
+        } else {
+            // On real devices (or Android simulator), open image library for videos
+            const imagePickerResult = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                quality: 1,
+            });
+            if (!imagePickerResult.canceled && imagePickerResult.assets && imagePickerResult.assets.length > 0) {
+                videoUri = imagePickerResult.assets[0].uri;
+            } else if (imagePickerResult.canceled) {
+                console.log("Image picking cancelled (Device).");
+                return;
+            }
+        }
+
+        if (videoUri) {
+            setRecordedVideo({ uri: videoUri });
             setShowPreview(true);
         }
     };
@@ -245,7 +321,7 @@ export default function AddScreen() {
         return (
             <View style={styles.permissionContainer}>
                 <Text style={styles.permissionText}>
-                    {t("addContent.cameraPermission")}
+                    {t("addContent.cameraMicrophonePermissionRequired")}
                 </Text>
                 <TouchableOpacity
                     style={styles.permissionButton}

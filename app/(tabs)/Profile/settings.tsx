@@ -36,6 +36,7 @@ import Header from "@/components/ui/Header";
 import { StatusBar } from "expo-status-bar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Notification, NotificationType } from "@/components/ui/Notification";
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator'; // Import manipulateAsync
 
 // أعلام البلدان
 const SA_FLAG = require("../../../assets/images/SA.png");
@@ -159,7 +160,7 @@ export default function SettingsScreen() {
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [1, 1],
-                quality: 0.8,
+                quality: 1, // Start with full quality, we'll compress if needed
             });
 
             if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -170,12 +171,34 @@ export default function SettingsScreen() {
                     t("settings.updatingProfileImage")
                 );
 
+                let imageUri = result.assets[0].uri;
+                let imageFileInfo = await fetch(imageUri).then(res => res.blob());
+                let imageSizeInKB = imageFileInfo.size / 1024; // Calculate size in KB
+                let compressionQuality = 1.0; // Start with no compression
+
+                // Compress image if larger than 2MB (2048 KB), target slightly less than 2048KB
+                while (imageSizeInKB > 1000 && compressionQuality > 0.01) { // Target 1000KB (1MB) to be safe, allowing lower quality
+                    compressionQuality -= 0.1; // Decrease quality by 10%
+                    const manipResult = await manipulateAsync(
+                        imageUri,
+                        [],
+                        { compress: compressionQuality, format: SaveFormat.JPEG }
+                    );
+                    imageUri = manipResult.uri;
+                    imageFileInfo = await fetch(imageUri).then(res => res.blob());
+                    imageSizeInKB = imageFileInfo.size / 1024; // Recalculate size in KB
+                    console.log(`Compressed profile image to ${imageSizeInKB.toFixed(2)} KB with quality ${compressionQuality.toFixed(1)}`);
+                }
+
+                console.log("Final profile image URI before upload:", imageUri);
+                console.log(`Final profile image size before upload: ${imageSizeInKB.toFixed(2)} KB`);
+
                 try {
                     // إنشاء كائن FormData لرفع الصورة
                     const formData = new FormData();
                     // استخدام اسم الملف الذي يتوقعه الخادم
                     formData.append("profile_image", {
-                        uri: result.assets[0].uri,
+                        uri: imageUri, // Use the potentially compressed image URI
                         type: "image/jpeg",
                         name: "profile_image.jpg",
                     } as any);
@@ -279,7 +302,7 @@ export default function SettingsScreen() {
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
                 aspect: [3, 1],
-                quality: 0.8,
+                quality: 1, // Start with full quality, we'll compress if needed
             });
 
             if (!result.canceled && result.assets && result.assets.length > 0) {
@@ -290,11 +313,33 @@ export default function SettingsScreen() {
                     t("settings.updatingCoverImage")
                 );
 
+                let imageUri = result.assets[0].uri;
+                let imageFileInfo = await fetch(imageUri).then(res => res.blob());
+                let imageSizeInKB = imageFileInfo.size / 1024; // Calculate size in KB
+                let compressionQuality = 1.0; // Start with no compression
+
+                // Compress image if larger than 2MB (2048 KB), target slightly less than 2048KB
+                while (imageSizeInKB > 1000 && compressionQuality > 0.01) { // Target 1000KB (1MB) to be safe, allowing lower quality
+                    compressionQuality -= 0.1; // Decrease quality by 10%
+                    const manipResult = await manipulateAsync(
+                        imageUri,
+                        [],
+                        { compress: compressionQuality, format: SaveFormat.JPEG }
+                    );
+                    imageUri = manipResult.uri;
+                    imageFileInfo = await fetch(imageUri).then(res => res.blob());
+                    imageSizeInKB = imageFileInfo.size / 1024; // Recalculate size in KB
+                    console.log(`Compressed cover image to ${imageSizeInKB.toFixed(2)} KB with quality ${compressionQuality.toFixed(1)}`);
+                }
+
+                console.log("Final cover image URI before upload:", imageUri);
+                console.log(`Final cover image size before upload: ${imageSizeInKB.toFixed(2)} KB`);
+
                 try {
                     const formData = new FormData();
                     // استخدام اسم الملف الذي يتوقعه الخادم
                     formData.append("cover_image", {
-                        uri: result.assets[0].uri,
+                        uri: imageUri, // Use the potentially compressed image URI
                         type: "image/jpeg",
                         name: "cover_image.jpg",
                     } as any);
@@ -310,7 +355,6 @@ export default function SettingsScreen() {
                     );
 
                     const responseData = response.data as any;
-
                     if (response && response.status === 200) {
                         // تحديث الصورة في الحالة المحلية
                         setCoverImage(result.assets[0].uri);

@@ -3,7 +3,6 @@ import {
     View,
     ScrollView,
     Dimensions,
-    SafeAreaView,
     StyleSheet,
     Image,
     TouchableOpacity,
@@ -13,6 +12,7 @@ import {
     NativeSyntheticEvent,
     BackHandler,
     Alert,
+    StatusBar as RNStatusBar,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -170,7 +170,7 @@ export default function IntroScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <Stack.Screen options={{ headerShown: false }} />
             <StatusBar style="dark" />
 
@@ -193,7 +193,7 @@ export default function IntroScreen() {
                 showsHorizontalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
-                style={styles.scrollView}
+                style={[styles.scrollView, Platform.OS === "ios" && { paddingTop: 0 }]} // إزالة paddingTop الإضافي
                 contentContainerStyle={styles.scrollViewContent}
                 onMomentumScrollEnd={handleScroll}
             >
@@ -268,7 +268,7 @@ export default function IntroScreen() {
                     onPress={scrollToNext}
                 />
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
     scrollView: {
         flex: 1,
         width: width,
+        paddingTop: Platform.OS === "ios" ? 0 : 0, // أعدنا هذا إلى 0، وسنضيف padding علوي على محتوى slide نفسه
     },
     scrollViewContent: {
         flexGrow: 1,
@@ -294,6 +295,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         backgroundColor: "#fff",
+        paddingTop: 0, // تم إزالة هذا لتجنب تجاوز الحدود
     },
     image: {
         width,
@@ -366,7 +368,7 @@ const styles = StyleSheet.create({
     },
     skipButton: {
         position: "absolute",
-        top: Platform.OS === "ios" ? 50 : 30,
+        top: Platform.OS === "ios" ? 40 : (RNStatusBar.currentHeight || 20) + 10, // تم تعديل هذا ليناسب شريط الحالة الشفاف
         right: 20,
         zIndex: 100,
         padding: 10,

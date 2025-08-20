@@ -16,7 +16,9 @@
         "followers": "متابعين",
         "seeAll": "عرض الكل",
         "close": "إغلاق",
-        "success": "تم بنجاح"
+        "success": "تم بنجاح",
+        "user": "مستخدم",
+        "refresh": "تحديث"
     },
     "auth": {
         "login": "تسجيل الدخول",
@@ -121,7 +123,8 @@
             "passwordRequired": "كلمة المرور مطلوبة",
             "usernameTaken": "اسم المستخدم مستخدم بالفعل",
             "invalidEmail": "صيغة البريد الإلكتروني غير صحيحة",
-            "passwordMismatch": "كلمتا المرور غير متطابقتين"
+            "passwordMismatch": "كلمتا المرور غير متطابقتين",
+            "usernameExists": "اسم المستخدم موجود مسبقاً، يرجى اختيار اسم مستخدم آخر"
         },
         "registerTitle": "إنشاء حساب جديد"
     },
@@ -187,7 +190,8 @@
         "emptyProfileDescription": "لم يقم هذا المستخدم بنشر أي محتوى حتى الآن",
         "noFollowingTitle": "لا يوجد متابَعين بعد",
         "noFollowing": "لا يوجد متابَعين حتى الآن",
-        "noFollowers": "لا يوجد متابعين حتى الآن"
+        "noFollowers": "لا يوجد متابعين حتى الآن",
+        "addPhoto": "أضف صورة ملف شخصي"
     },
     "content": {
         "like": "إعجاب",
@@ -340,6 +344,11 @@
         "shared": "شارك منشورك",
         "newFollower": "متابع جديد"
     },
+    "home": {
+        "noVideosTitle": "لا توجد فيديوهات حالياً",
+        "noVideosDescription": "ابدأ بنشر أول فيديو لك لمشاركته مع المجتمع!",
+        "createFirstVideo": "أنشئ أول فيديو لك"
+    },
     "messages": {
         "title": "المحادثات",
         "search": "البحث في المحادثات",
@@ -368,6 +377,15 @@
         "mediaOptions": "خيارات الوسائط"
     },
     "addContent": {
+        "simulatorRecordingNotSupportedTitle": "التسجيل غير مدعوم",
+        "simulatorRecordingNotSupportedDescription": "لا يدعم محاكي iOS تسجيل الفيديو. يرجى استخدام زر المعرض (Gallery) لرفع فيديو موجود.",
+        "simulatorMode": "وضع المحاكي",
+        "simulatorModeDescription": "لا يدعم المحاكي تسجيل الفيديو. سيتم استخدام فيديو تجريبي للمعاينات.",
+        "permissionDeniedTitle": "الأذن مرفوض",
+        "cameraPermissionPermanentlyDenied": "أذن الكاميرا والميكروفون مرفوض بشكل دائم. يرجى الذهاب إلى إعدادات التطبيق لتمكينها.",
+        "microphonePermissionPermanentlyDenied": "أذن الميكروفون مرفوض بشكل دائم. يرجى الذهاب إلى إعدادات التطبيق لتمكينها.",
+        "openSettings": "فتح الإعدادات",
+        "cameraMicrophonePermissionRequired": "هذا التطبيق يحتاج إلى أذونات الكاميرا والميكروفون لتسجيل الفيديو.",
         "cameraPermission": "نحتاج إذن الوصول للكاميرا والميكروفون لتسجيل الفيديو",
         "grantPermission": "منح الإذن",
         "addMusic": "إضافة موسيقى",
@@ -415,6 +433,23 @@
     "stories": {
         "title": "القصص",
         "addStory": "إضافة قصة",
+        "myStoryExists": "قصتي",
+        "noStoriesTitle": "لا توجد قصص",
+        "noStoriesDescription": "لم يتم العثور على أي قصص حالياً. \n اسحب لأسفل للتحديث أو ابدأ بإنشاء قصتك الأولى!",
+        "createStoryButton": "إنشاء قصة",
+        "loadingStories": "جاري تحميل القصص...",
+        "noStoriesFound": "لم يتم العثور على قصص لهذا المستخدم.",
+        "uploadTitle": "نشر القصة",
+        "readyToPublish": "جاهز للنشر؟",
+        "duration": "المدة",
+        "visibility": "الرؤية",
+        "public": "عام",
+        "type": "النوع",
+        "video": "فيديو",
+        "uploading": "جاري الرفع",
+        "publishStory": "نشر القصة",
+        "uploadSuccessTitle": "تم الرفع",
+        "uploadSuccessMsg": "تم رفع القصة بنجاح!",
         "friends": "الأصدقاء",
         "others": "اكتشف",
         "followers": "متابع",

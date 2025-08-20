@@ -11,6 +11,7 @@ import Story from "../../assets/icons/svgs/Story";
 import Home from "../../assets/icons/svgs/Home";
 import Messages from "../../assets/icons/svgs/Messages";
 import { Pressable } from "react-native";
+import FastImage from 'react-native-fast-image'; // Added FastImage import
 function TabBar({ state, descriptors, navigation }: any) {
     const { isRTL } = useAppLanguage();
     const { isAuthenticated, user, isLoading } = useAuth();
@@ -208,18 +209,25 @@ export default function TabsLayout() {
                         color: string;
                         size: number;
                     }) => {
+                        console.log("Profile image URL:", user?.profile_image); // Log the image URL
+                        // Use a test image for debugging
+                        const testImageUrl = "https://picsum.photos/200/300";
+
                         if (user?.profile_image) {
                             return (
                                 <View style={styles.profileIconContainer}>
-                                    <Image
+                                    <FastImage
                                         source={{
-                                            uri: user.profile_image,
+                                            uri: user.profile_image, // Use the actual user image initially
+                                            // uri: testImageUrl, // Uncomment this line to test with a known good image
                                         }}
                                         style={[
                                             styles.profileImage,
                                             focused &&
                                                 styles.profileImageFocused,
                                         ]}
+                                        resizeMode={FastImage.resizeMode.cover} // Use FastImage.resizeMode
+                                        onError={() => console.log("FastImage loading error.")} // Updated onError to not expect an argument
                                     />
                                     {focused && (
                                         <View style={styles.activeIndicator} />
@@ -228,7 +236,22 @@ export default function TabsLayout() {
                             );
                         }
                         return (
-                            <Ionicons name="person" size={size} color={color} />
+                            <View style={styles.profilePlaceholderContainer}>
+                                <Ionicons
+                                    name="person-circle-outline"
+                                    size={size}
+                                    color={color}
+                                />
+                                <Text
+                                    style={[
+                                        styles.label,
+                                        focused && styles.labelFocused,
+                                        styles.addPhotoLabel,
+                                    ]}
+                                >
+                                    {t("profile.addPhoto")}
+                                </Text>
+                            </View>
                         );
                     },
                     tabBarButton: (props) => {
@@ -293,16 +316,21 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     profileIconContainer: {
-        width: 30,
-        height: 30,
+        width: 32, // Adjusted for slightly larger clickable area
+        height: 32, // Adjusted for slightly larger clickable area
         marginBottom: 2,
         alignItems: "center",
         justifyContent: "center",
     },
+    profilePlaceholderContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 2,
+    },
     profileImage: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
+        width: 28, // Make it slightly smaller than container to show border
+        height: 28, // Make it slightly smaller than container to show border
+        borderRadius: 14, // Half of width/height for perfect circle
         borderWidth: 2,
         borderColor: "#8A8B8B",
     },
@@ -317,5 +345,9 @@ const styles = StyleSheet.create({
         height: 4,
         borderRadius: 2,
         backgroundColor: "#fff",
+    },
+    addPhotoLabel: {
+        fontSize: 10, // حجم أصغر للنص
+        marginTop: 2, // مسافة صغيرة من الأيقونة
     },
 });

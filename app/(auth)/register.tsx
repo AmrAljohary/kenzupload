@@ -382,7 +382,10 @@ export default function RegisterScreen() {
                 });
 
                 // توجيه المستخدم إلى صفحة التحقق من البريد الإلكتروني
-                router.replace("/(auth)/otp");
+                router.replace({
+                    pathname: "/(auth)/otp",
+                    params: { email: email, type: "signup" },
+                });
             }
         } catch (error) {
             console.error("Registration error:", error);
@@ -475,9 +478,12 @@ export default function RegisterScreen() {
                 <StatusBar style="dark" backgroundColor="#fff" />
 
                 <ScrollView
-                    contentContainerStyle={{
-                        backgroundColor: "#fff",
-                    }}
+                    contentContainerStyle={[
+                        styles.scrollViewContent,
+                        {
+                            paddingHorizontal: Platform.OS === "ios" ? 20 : 0, // إضافة padding هنا
+                        },
+                    ]}
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
@@ -579,9 +585,7 @@ export default function RegisterScreen() {
                         </View>
                         {usernameExists && (
                             <Text style={styles.errorText}>
-                                {isRTL
-                                    ? "اسم المستخدم موجود مسبقاً، يرجى اختيار اسم مستخدم آخر"
-                                    : "Username already exists, please choose another one"}
+                                {t("auth.usernameExists")}
                             </Text>
                         )}
 
@@ -1135,11 +1139,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
+        paddingHorizontal: Platform.OS === "ios" ? 20 : 0,
         direction: I18nManager.isRTL ? "ltr" : "rtl",
     },
     backButton: {
-        marginTop: 50,
+        marginTop: 10, // تم التعديل إلى قيمة ثابتة 10
     },
     logoContainer: {
         marginTop: height * 0.03,
@@ -1180,12 +1184,14 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         height: 50,
         position: "relative",
+        width: "100%", // إضافة هذا السطر
     },
     input: {
         flex: 1,
         fontSize: 14,
         height: "100%",
         fontFamily: "somar-regular",
+        zIndex: 1, // إضافة هذا السطر
     },
     inputIconContainer: {
         position: "absolute",
@@ -1508,5 +1514,9 @@ const styles = StyleSheet.create({
     },
     checkboxError: {
         borderColor: "#FF5252",
+    },
+    scrollViewContent: {
+        flexGrow: 1,
+        backgroundColor: "#fff",
     },
 });

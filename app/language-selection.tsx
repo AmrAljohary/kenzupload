@@ -45,23 +45,11 @@ export default function LanguageSelectionScreen() {
             <Stack.Screen options={{ headerShown: false }} />
             <StatusBar style="dark" />
 
-            {/* الشعار */}
-            <View
-                style={[
-                    styles.logoContainer,
-                    {
-                        alignItems:
-                            selectedLanguage === "ar"
-                                ? "flex-end"
-                                : "flex-start",
-                    },
-                ]}
-            >
-                <Image source={LOGO} style={styles.logo} resizeMode="contain" />
-                {/* العنوان */}
+            <View style={styles.contentWrapper}>
+                {/* الشعار */}
                 <View
                     style={[
-                        styles.titleContainer,
+                        styles.logoContainer,
                         {
                             alignItems:
                                 selectedLanguage === "ar"
@@ -70,52 +58,47 @@ export default function LanguageSelectionScreen() {
                         },
                     ]}
                 >
-                    <Text variant="h2" style={styles.title} align="center">
-                        {selectedLanguage === "ar"
-                            ? "قم بإختيار لغة التطبيق"
-                            : "Choose Your Language"}
-                    </Text>
-                    <Text
-                        variant="body"
-                        style={styles.subtitle}
-                        align="center"
-                        color="#666"
+                    <Image
+                        source={LOGO}
+                        style={styles.logo}
+                        resizeMode="contain"
+                    />
+                    {/* العنوان */}
+                    <View
+                        style={[
+                            styles.titleContainer,
+                            {
+                                alignItems:
+                                    selectedLanguage === "ar"
+                                        ? "flex-end"
+                                        : "flex-start",
+                            },
+                        ]}
                     >
-                        {selectedLanguage === "ar"
-                            ? "اختر لغتك المفضلة"
-                            : "Choose Your Default Language"}
-                    </Text>
+                        <Text variant="h2" style={styles.title} align="center">
+                            {selectedLanguage === "ar"
+                                ? "قم بإختيار لغة التطبيق"
+                                : "Choose Your Language"}
+                        </Text>
+                        <Text
+                            variant="body"
+                            style={styles.subtitle}
+                            align="center"
+                            color="#666"
+                        >
+                            {selectedLanguage === "ar"
+                                ? "اختر لغتك المفضلة"
+                                : "Choose Your Default Language"}
+                        </Text>
+                    </View>
                 </View>
-            </View>
 
-            {/* خيارات اللغة */}
-            <View style={[styles.languageOptions]}>
-                <TouchableOpacity
-                    style={[
-                        styles.languageOption,
-                        selectedLanguage === "ar" && styles.selectedLanguage,
-                        {
-                            flexDirection:
-                                selectedLanguage === "ar"
-                                    ? "row"
-                                    : "row-reverse",
-                        },
-                    ]}
-                    onPress={() => handleLanguageSelect("ar")}
-                >
-                    <View style={styles.checkmarkContainer}>
-                        {selectedLanguage === "ar" && (
-                            <Ionicons
-                                name="checkmark-circle"
-                                size={24}
-                                color="#000"
-                            />
-                        )}
-                    </View>
-
-                    <View
+                {/* خيارات اللغة */}
+                <View style={[styles.languageOptions]}>
+                    <TouchableOpacity
                         style={[
-                            styles.languageContent,
+                            styles.languageOption,
+                            selectedLanguage === "ar" && styles.selectedLanguage,
                             {
                                 flexDirection:
                                     selectedLanguage === "ar"
@@ -123,47 +106,47 @@ export default function LanguageSelectionScreen() {
                                         : "row-reverse",
                             },
                         ]}
+                        onPress={() => handleLanguageSelect("ar")}
                     >
-                        <Text
-                            variant="h3"
+                        <View style={styles.checkmarkContainer}>
+                            {selectedLanguage === "ar" && (
+                                <Ionicons
+                                    name="checkmark-circle"
+                                    size={24}
+                                    color="#000"
+                                />
+                            )}
+                        </View>
+
+                        <View
                             style={[
-                                styles.languageText,
-                                selectedLanguage === "ar" &&
-                                    styles.selectedLanguageText,
+                                styles.languageContent,
+                                {
+                                    flexDirection:
+                                        selectedLanguage === "ar"
+                                            ? "row"
+                                            : "row-reverse",
+                                },
                             ]}
                         >
-                            اللغة العربية
-                        </Text>
-                        <Image source={SA_FLAG} style={styles.flagIcon} />
-                    </View>
-                </TouchableOpacity>
+                            <Text
+                                variant="h3"
+                                style={[
+                                    styles.languageText,
+                                    selectedLanguage === "ar" &&
+                                        styles.selectedLanguageText,
+                                ]}
+                            >
+                                اللغة العربية
+                            </Text>
+                            <Image source={SA_FLAG} style={styles.flagIcon} />
+                        </View>
+                    </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[
-                        styles.languageOption,
-                        selectedLanguage === "en" && styles.selectedLanguage,
-                        {
-                            flexDirection:
-                                selectedLanguage === "ar"
-                                    ? "row"
-                                    : "row-reverse",
-                        },
-                    ]}
-                    onPress={() => handleLanguageSelect("en")}
-                >
-                    <View style={styles.checkmarkContainer}>
-                        {selectedLanguage === "en" && (
-                            <Ionicons
-                                name="checkmark-circle"
-                                size={24}
-                                color="#000"
-                            />
-                        )}
-                    </View>
-
-                    <View
+                    <TouchableOpacity
                         style={[
-                            styles.languageContent,
+                            styles.languageOption,
+                            selectedLanguage === "en" && styles.selectedLanguage,
                             {
                                 flexDirection:
                                     selectedLanguage === "ar"
@@ -171,20 +154,43 @@ export default function LanguageSelectionScreen() {
                                         : "row-reverse",
                             },
                         ]}
+                        onPress={() => handleLanguageSelect("en")}
                     >
-                        <Text
-                            variant="h3"
+                        <View style={styles.checkmarkContainer}>
+                            {selectedLanguage === "en" && (
+                                <Ionicons
+                                    name="checkmark-circle"
+                                    size={24}
+                                    color="#000"
+                                />
+                            )}
+                        </View>
+
+                        <View
                             style={[
-                                styles.languageText,
-                                selectedLanguage === "en" &&
-                                    styles.selectedLanguageText,
+                                styles.languageContent,
+                                {
+                                    flexDirection:
+                                        selectedLanguage === "ar"
+                                            ? "row"
+                                            : "row-reverse",
+                                },
                             ]}
                         >
-                            English
-                        </Text>
-                        <Image source={US_FLAG} style={styles.flagIcon} />
-                    </View>
-                </TouchableOpacity>
+                            <Text
+                                variant="h3"
+                                style={[
+                                    styles.languageText,
+                                    selectedLanguage === "en" &&
+                                        styles.selectedLanguageText,
+                                ]}
+                            >
+                                English
+                            </Text>
+                            <Image source={US_FLAG} style={styles.flagIcon} />
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* زر الاستمرار */}
@@ -205,8 +211,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        paddingHorizontal: 20,
         direction: I18nManager.isRTL ? "ltr" : "rtl",
+    },
+    contentWrapper: {
+        flex: 1,
+        paddingHorizontal: Platform.OS === "ios" ? 20 : 0,
     },
     logoContainer: {
         alignItems: "flex-end",
@@ -233,7 +242,7 @@ const styles = StyleSheet.create({
         fontFamily: "somar-regular",
     },
     languageOptions: {
-        width: "100%",
+        // width: "100%", // تم إزالة هذا لتجنب تجاوز الحدود
     },
     languageOption: {
         flexDirection: "row",
@@ -278,8 +287,7 @@ const styles = StyleSheet.create({
         width: "100%",
         position: "absolute",
         bottom: 20,
-        left: 20,
-        right: 20,
+        paddingHorizontal: Platform.OS === "ios" ? 20 : 0,
     },
     continueButton: {
         marginBottom: 20,

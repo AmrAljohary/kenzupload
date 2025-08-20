@@ -675,13 +675,7 @@ export const VideoItem = React.memo(
             >
                 <View style={styles.videoWrapper}>
                     <LongPressGestureHandler
-                        ref={longPressRef}
-                        minDurationMs={600}
-                        onHandlerStateChange={({ nativeEvent }) => {
-                            if (nativeEvent.state === State.ACTIVE) {
-                                onLongPress(item);
-                            }
-                        }}
+                      
                     >
                         <TapGestureHandler
                             ref={doubleTapRef}
@@ -903,11 +897,11 @@ export const VideoItem = React.memo(
                                     styles.avatarContainer,
                                     isRTL
                                         ? {
-                                              left: 40,
+                                              left: 70,
                                               right: "auto",
                                           }
                                         : {
-                                              right: 40,
+                                              right: 70,
                                               left: "auto",
                                           },
                                     isRTL
@@ -1576,10 +1570,14 @@ export default function HomeScreen() {
                 const { rows, paginationLinks } = response.data.data;
 
                 // التحقق من وجود صفحات إضافية
-                setHasMorePages(
-                    paginationLinks.currentPages <
-                        parseInt(paginationLinks.links.last.split("page=")[1])
-                );
+                if (paginationLinks) {
+                    setHasMorePages(
+                        paginationLinks.currentPages <
+                            parseInt(paginationLinks.links.last.split("page=")[1])
+                    );
+                } else {
+                    setHasMorePages(false); // Default to no more pages if paginationLinks is missing
+                }
 
                 // إعداد القيم المتحركة مسبقًا لكل فيديو
                 rows.forEach((video) => {
@@ -2069,6 +2067,32 @@ export default function HomeScreen() {
                         </View>
                     ) : null
                 }
+                ListEmptyComponent={() =>
+                    !loading && videos.length === 0 ? (
+                        <View style={styles.noVideosContainer}>
+                            <Ionicons
+                                name="videocam-off-outline"
+                                size={60}
+                                color="#999"
+                            />
+                            <Text style={styles.noVideosText}>
+                                {t("home.noVideosTitle")}
+                            </Text>
+                            <Text style={styles.noVideosDescription}>
+                                {t("home.noVideosDescription")}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => router.push("/(tabs)/add")}
+                                style={styles.createVideoButton}
+                            >
+                                <Ionicons name="add-circle-outline" size={24} color="#000" />
+                                <Text style={styles.createVideoButtonText}>
+                                    {t("home.createFirstVideo")}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : null
+                }
             />
 
             {/* Bottom Sheet للخيارات */}
@@ -2123,6 +2147,11 @@ const styles = StyleSheet.create({
         backgroundColor: "rgba(0,0,0,0.3)",
         alignItems: "center",
         justifyContent: "center",
+        shadowColor: "#000", // إضافة ظل
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
     },
     toggleContainer: {
         alignItems: "center",
@@ -2193,6 +2222,7 @@ const styles = StyleSheet.create({
         alignItems: "flex-end",
         justifyContent: "space-between",
         width: "100%",
+        marginBottom: 120,
     },
     DataContainer: {
         width: "63%",
@@ -2249,8 +2279,8 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         zIndex: 10,
-        top: "70%", // توسيط عمودي
-        marginTop: 0, // نصف الارتفاع للتوسيط
+        top: "70%",
+        marginTop: 0,
     },
     avatar: {
         width: 60,
@@ -2778,5 +2808,47 @@ const styles = StyleSheet.create({
         color: "#222",
         fontSize: 15,
         fontFamily: "somar-bold",
+    },
+    noVideosContainer: {
+        flex: 1,
+        justifyContent: "center", // تم التعديل ليصبح في المنتصف عموديًا
+        alignItems: "center",
+        height: height * 0.7,
+        paddingHorizontal: 20,
+    },
+    noVideosText: {
+        color: "#fff",
+        fontSize: 20,
+        fontFamily: "somar-bold",
+        marginTop: 20,
+        textAlign: "center",
+    },
+    noVideosDescription: {
+        color: "#ccc",
+        fontSize: 14,
+        fontFamily: "somar-regular",
+        marginTop: 10,
+        textAlign: "center",
+        lineHeight: 20,
+    },
+    createVideoButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#fff", // تم التعديل إلى اللون الأبيض
+        paddingVertical: 12,
+        paddingHorizontal: 25,
+        borderRadius: 30,
+        marginTop: 30,
+        shadowColor: "#000", // إضافة ظل
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    createVideoButtonText: {
+        color: "#000", // تم التعديل إلى اللون الأسود
+        fontSize: 16,
+        fontFamily: "somar-bold",
+        marginLeft: 10,
     },
 });

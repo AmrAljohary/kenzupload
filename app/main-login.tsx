@@ -10,7 +10,6 @@ import {
     StyleSheet,
     TouchableOpacity,
     Image,
-    SafeAreaView,
     ImageBackground,
     Dimensions,
     Platform,
@@ -40,6 +39,7 @@ import BottomSheet, {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { INTRO_COMPLETED_KEY } from "./intro"; // استيراد المفتاح من ملف intro.tsx
+import { getBottomSpace } from "react-native-iphone-x-helper";
 
 // الصور
 const BACKGROUND_IMAGE = require("../assets/images/MainLoginBackground.png");
@@ -171,9 +171,20 @@ export default function MainLoginScreen() {
     const handleGuestLogin = async () => {
         // تسجيل الدخول كضيف مع بيانات فارغة
         const guestToken = "guest_token";
-        const guestData = { isGuest: true };
+        const guestData = {
+            id: 0, // Changed id to number
+            name: "Guest User",
+            email: "guest@example.com",
+            country_code: "",
+            phone_number: "",
+            is_email_verified: false,
+            profile_image: "",
+            username: "guest_user",
+            token: guestToken,
+            // أضف أي حقول أخرى مطلوبة في UserData مع قيم افتراضية
+        };
 
-        await login(guestToken, guestData);
+        await login(guestData); // تم تعديل هذا السطر
         router.replace("/(tabs)");
     };
 
@@ -214,8 +225,8 @@ export default function MainLoginScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar style="light" />
+        <View style={styles.container}>
+            <StatusBar style="light" translucent={true} backgroundColor="transparent" />
             <ImageBackground
                 source={BACKGROUND_IMAGE}
                 style={styles.backgroundImage}
@@ -443,7 +454,7 @@ export default function MainLoginScreen() {
                     />
                 </BottomSheetScrollView>
             </BottomSheet>
-        </SafeAreaView>
+        </View>
     );
 }
 
@@ -465,7 +476,7 @@ const styles = StyleSheet.create({
     contentWrapper: {
         flex: 1,
         justifyContent: "space-between",
-        paddingTop: Platform.OS === "ios" ? 50 : 30,
+        paddingTop: Platform.OS === "ios" ? 60 : 30, // Adjusted for status bar
         marginTop: height * 0.20,
     },
     logoContainer: {
@@ -497,7 +508,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 24,
-        marginBottom: Platform.OS === "ios" ? 40 : 25,
+        marginBottom: Platform.OS === "ios" ? getBottomSpace() + 20 : 25, // Adjusted for bottom space
         width: "100%",
     },
     loginButton: {

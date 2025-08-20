@@ -6,12 +6,14 @@ import {
     SafeAreaView,
     Image,
     I18nManager,
+    Platform,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Text } from "../../components/ui/Text";
 import { useAppLanguage } from "../../hooks/useLanguage";
 import { Ionicons } from "@expo/vector-icons";
+import { getBottomSpace } from "react-native-iphone-x-helper"; // إضافة هذا الاستيراد
 
 export default function SuccessRegisterScreen() {
     const router = useRouter();
@@ -71,7 +73,8 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-        paddingHorizontal: 20,
+        paddingHorizontal: Platform.OS === "ios" ? 20 : 0,
+        paddingBottom: Platform.OS === "ios" ? getBottomSpace() : 0, // إضافة هذا السطر
     },
     successIcon: {
         marginBottom: 20,
