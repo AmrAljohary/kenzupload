@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "kenznew.app"
-               BlueprintName = "kenznew"
-               ReferencedContainer = "container:kenznew.xcodeproj">
+               BuildableName = "knzalarb.app"
+               BlueprintName = "knzalarb"
+               ReferencedContainer = "container:knzalarb.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "kenznewTests.xctest"
-               BlueprintName = "kenznewTests"
-               ReferencedContainer = "container:kenznew.xcodeproj">
+               BuildableName = "knzalarbTests.xctest"
+               BlueprintName = "knzalarbTests"
+               ReferencedContainer = "container:knzalarb.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kenznew.app"
-            BlueprintName = "kenznew"
-            ReferencedContainer = "container:kenznew.xcodeproj">
+            BuildableName = "knzalarb.app"
+            BlueprintName = "knzalarb"
+            ReferencedContainer = "container:knzalarb.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "kenznew.app"
-            BlueprintName = "kenznew"
-            ReferencedContainer = "container:kenznew.xcodeproj">
+            BuildableName = "knzalarb.app"
+            BlueprintName = "knzalarb"
+            ReferencedContainer = "container:knzalarb.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
