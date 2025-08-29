@@ -40,6 +40,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { INTRO_COMPLETED_KEY } from "./intro"; // استيراد المفتاح من ملف intro.tsx
 import { getBottomSpace } from "react-native-iphone-x-helper";
+import { LANGUAGE_SELECTED_KEY } from "./language-selection";
 
 // الصور
 const BACKGROUND_IMAGE = require("../assets/images/MainLoginBackground.png");
@@ -81,6 +82,19 @@ export default function MainLoginScreen() {
                 const introCompleted = await AsyncStorage.getItem(
                     INTRO_COMPLETED_KEY
                 );
+
+                //check if the language is selected
+                const languageSelected = await AsyncStorage.getItem(
+                    LANGUAGE_SELECTED_KEY
+                );
+
+                if (languageSelected !== "true") {
+                    console.log(
+                        "Language not selected, redirecting to language selection screen"
+                    );
+                    router.replace("/language-selection");
+                    return;
+                }
 
                 // إذا لم يكن المستخدم قد أكمل المقدمة، نعيده إلى شاشة المقدمة
                 if (introCompleted !== "true") {

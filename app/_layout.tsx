@@ -228,9 +228,9 @@ export default function RootLayout() {
                                 }}
                             >
                                 {/* <Stack.Screen name="index" /> */}
-                                <Stack.Screen name="main-login" />
                                 <Stack.Screen name="language-selection" />
                                 <Stack.Screen name="intro" />
+                                <Stack.Screen name="main-login" />
                                 <Stack.Screen name="(auth)" />
                                 <Stack.Screen name="(tabs)" />
                                 <Stack.Screen name="story-viewer" /> {/* Add the new story-viewer stack */}
